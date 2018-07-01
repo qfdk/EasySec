@@ -43,6 +43,20 @@ router.get('/search', function (req, res, next) {
         for (var i = 0; i < data.length; i++) {
           results = results.concat(data[i]);
         }
+        if (results.length == 0) {
+          return res.json({
+            vulnerability: {
+              nombre: 0,
+              niveau: 1
+            },
+            cve: {
+              list: [],
+              niveau: 1,
+              maxScore: 0
+            }
+          });
+        }
+
         var scoreList = results.map(function (val, index, array) {
           return parseFloat(val.split('#')[1].replace(',', '.'));
         });
@@ -52,11 +66,11 @@ router.get('/search', function (req, res, next) {
         var tmp = {
           vulnerability: {
             nombre: 0,
-            niveau: 0
+            niveau: 1
           },
           cve: {
             list: [],
-            niveau: 0,
+            niveau: 1,
             maxScore: maxScore
           }
         };
@@ -87,7 +101,6 @@ router.get('/search', function (req, res, next) {
         } else if (9.0 < maxScore && maxScore <= 10) {
           tmp.cve.niveau = 5;
         }
-
         res.json(tmp);
       });
     }
