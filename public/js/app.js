@@ -28,7 +28,7 @@ $(document).ready(function () {
         });
     });
 
-    $('#cpe').on('change', function () {
+    $('#cpe').on('blur', function () {
         clear();
     });
 });

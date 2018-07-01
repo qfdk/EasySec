@@ -28,7 +28,7 @@ router.get('/search', function (req, res, next) {
   }
   var fullUrl = baseUrl + cpe;
   var pages;
-  request.get(fullUrl, function (err, response, body) {
+  request.get(fullUrl, async function (err, response, body) {
     if (!err) {
       var html = body
       var $ = cheerio.load(html, { decodeEntities: false });
@@ -53,7 +53,7 @@ router.get('/search', function (req, res, next) {
         });
 
         // call all requests
-        Promise.all(listFunction).then(function (data) {
+        await Promise.all(listFunction).then(function (data) {
           var results = [];
           // results list
           for (var i = 0; i < data.length; i++) {
