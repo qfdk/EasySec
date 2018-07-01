@@ -1,9 +1,31 @@
 <% include include/header.html %>
 
     <div class="container">
-
+        <p>
+            <code class="literal">cpe:/<em class="replaceable"><code>&lt;part&gt;</code>
+            </em>:
+            <em class="replaceable">
+                <code>&lt;vendor&gt;</code>
+            </em>:
+            <em class="replaceable">
+                <code>&lt;product&gt;</code>
+            </em>:
+            <em class="replaceable">
+                <code>&lt;version&gt;</code>
+            </em>:
+            <em class="replaceable">
+                <code>&lt;update&gt;</code>
+            </em>:
+            <em class="replaceable">
+                <code>&lt;edition&gt;</code>
+            </em>:
+            <em class="replaceable">
+                <code>&lt;language&gt;</code>
+            </em>
+            </code>
+        </p>
         <div class="row">
-            <div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-0">
+            <div class="col-md-6">
                 <div class="input-group">
                     <input type="text" class="form-control" id="cpe" name="cpe" placeholder="CPE">
                     <span class="input-group-btn">
@@ -14,15 +36,19 @@
         </div>
 
         <hr>
-        <h4>Nombre de vulnérabilités :
+        <p>
+            <strong>Surface d'attaque :</strong>
             <span id="cve-nombre"></span>
             <span id="cve-niveau" class="label"></span>
-        </h4>
-        <h4>Max CVSS Score :
+        </p>
+        <p>
+            <strong>Criticité des risques :</strong>
             <span id="cvss-score"></span>
             <span id="cvss-niveau" class="label"></span>
-        </h4>
-        <h4>Vuln ID#CVSS Severity (V2)</h4>
+        </p>
+        <p>
+            <strong>Vuln ID#CVSS Severity (V2)</strong>
+        </p>
         <div id="listCVE">
 
         </div>
