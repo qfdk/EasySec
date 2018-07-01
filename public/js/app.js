@@ -4,7 +4,8 @@ $(document).ready(function () {
         2: 'Bas',
         3: 'Modéré',
         4: 'Sévère',
-        5: 'Critique'
+        5: 'Critique',
+        6: 'ERROR'
     }
     $('.btn').on('click', function () {
         var $btn = $(this).button('loading');

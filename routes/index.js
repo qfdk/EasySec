@@ -13,6 +13,19 @@ router.get('/', function (req, res, next) {
 router.get('/search', function (req, res, next) {
 
   var cpe = req.query.cpe;
+  if (cpe.indexOf('cpe:/') == -1) {
+    return res.json({
+      vulnerability: {
+        nombre: 'Format v2.2 requires a CPE Name starting with cpe:/',
+        niveau: 6
+      },
+      cve: {
+        list: [],
+        niveau: 6,
+        maxScore: 0
+      }
+    });
+  }
   var fullUrl = baseUrl + cpe;
   var pages;
   request.get(fullUrl, function (err, response, body) {
@@ -30,8 +43,8 @@ router.get('/search', function (req, res, next) {
         var urls = [];
         var listFunction = [];
         for (var i = 0; i < pages; i++) {
-          var tmp = 'https://nvd.nist.gov/vuln/search/results?adv_search=true&cves=on&cpe_version=' + cpe + '&startIndex=' + i * 20;
-          urls.push(tmp);
+          var url = 'https://nvd.nist.gov/vuln/search/results?adv_search=true&cves=on&cpe_version=' + cpe + '&startIndex=' + i * 20;
+          urls.push(url);
         }
 
         // preparer call
@@ -150,19 +163,20 @@ function getURL(url) {
             results.push(cve + '#' + score);
           }
         } else {
-          var nbVulnerabilities = parseInt($("strong[data-testid=vuln-matching-records-count]").html().replace(",", ""), 10);
-          for (var i = 0; i < nbVulnerabilities; i++) {
-            var cve = $('a[data-testid=vuln-detail-link-' + i + ']').html();
-            var score_raw = $('a[data-testid=vuln-cvss2-link-' + i + ']').html();
-            if (score_raw) {
-              score = score_raw.split(" ")[0].replace(".", ",");
-            } else {
-              score = '(not available)';
+          if ($("strong[data-testid=vuln-matching-records-count]").html()) {
+            var nbVulnerabilities = parseInt($("strong[data-testid=vuln-matching-records-count]").html().replace(",", ""), 10);
+            for (var i = 0; i < nbVulnerabilities; i++) {
+              var cve = $('a[data-testid=vuln-detail-link-' + i + ']').html();
+              var score_raw = $('a[data-testid=vuln-cvss2-link-' + i + ']').html();
+              if (score_raw) {
+                score = score_raw.split(" ")[0].replace(".", ",");
+              } else {
+                score = '(not available)';
+              }
+              results.push(cve + '#' + score);
             }
-            results.push(cve + '#' + score);
           }
         }
-
         resolve(results);
       }
     });
