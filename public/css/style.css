@@ -1,0 +1,27 @@
+body {
+  background: #fff;
+  color: #666666;
+  font-family: "Open Sans", sans-serif;
+  margin-top: 70px;
+}
+
+.color1 {
+  background-color: green;
+  color: #fff;
+}
+.color2 {
+  background-color: yellow;
+  color: #fff;
+}
+.color3 {
+  background-color: orange;
+  color: #fff;
+}
+.color4 {
+  background-color: red;
+  color: #fff;
+}
+.color5 {
+  background-color: black;
+  color: #fff;
+}

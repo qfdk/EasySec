@@ -1,0 +1,31 @@
+<% include include/header.html %>
+
+    <div class="container">
+
+        <div class="row">
+            <div class="col-xs-6 col-xs-offset-3 col-sm-4 col-sm-offset-0">
+                <div class="input-group">
+                    <input type="text" class="form-control" id="cpe" name="cpe" placeholder="CPE">
+                    <span class="input-group-btn">
+                        <button class="btn btn-primary" data-loading-text="Searching ..." type="button">Go!</button>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <hr>
+        <h4>Nombre de vulnérabilités :
+            <span id="cve-nombre"></span>
+            <span id="cve-niveau" class="label"></span>
+        </h4>
+        <h4>Max CVSS Score :
+            <span id="cvss-score"></span>
+            <span id="cvss-niveau" class="label"></span>
+        </h4>
+        <h4>Vuln ID#CVSS Severity (V2)</h4>
+        <div id="listCVE">
+
+        </div>
+    </div>
+
+    <% include include/footer.html %>
