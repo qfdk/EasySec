@@ -12,6 +12,11 @@ $(document).ready(function () {
         var cpe = $("#cpe").val();
         $.get("/search?cpe=" + cpe, function (data) {
             clear();
+            if (data.ref == true) {
+                $('#ref').html('Rérérencé');
+            } else {
+                $('#ref').html('Non référencé => Produit non référencé par le NIST - https://nvd.nist.gov/products/cpe');
+            }
             $('#cve-nombre').html(data.vulnerability.nombre);
             $('#cve-niveau').addClass('color' + data.vulnerability.niveau);
             $('#cve-niveau').html(niveauText[data.vulnerability.niveau]);
@@ -34,6 +39,7 @@ $(document).ready(function () {
 });
 
 function clear() {
+    $('#ref').html('');
     $('#cve-nombre').html('');
     $('#cve-niveau').html('');
     $('#listCVE').html('');
