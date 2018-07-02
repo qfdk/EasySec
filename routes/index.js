@@ -29,132 +29,117 @@ router.get('/search', async function (req, res, next) {
   var fullUrl = baseUrl + cpe;
   var pages;
   var checkref = await getcheckRef('https://nvd.nist.gov/products/cpe/search/results?keyword=' + cpe + '&status=FINAL&orderBy=CPEURI&namingFormat=2.2');
-  if (checkref) {
-    request.get(fullUrl, async function (err, response, body) {
-      if (!err) {
-        var html = body
-        var $ = cheerio.load(html, { decodeEntities: false });
-        if ($("strong[data-testid=vuln-matching-records-count]").html()) {
-          var nbVulnerabilities = parseInt($("strong[data-testid=vuln-matching-records-count]").html().replace(",", ""), 10);
-          if (nbVulnerabilities <= 20) {
-            pages = 1;
-          } else {
-            pages = parseInt(nbVulnerabilities / 20, 10) + 1;
+  request.get(fullUrl, async function (err, response, body) {
+    if (!err) {
+      var html = body
+      var $ = cheerio.load(html, { decodeEntities: false });
+      if ($("strong[data-testid=vuln-matching-records-count]").html()) {
+        var nbVulnerabilities = parseInt($("strong[data-testid=vuln-matching-records-count]").html().replace(",", ""), 10);
+        if (nbVulnerabilities <= 20) {
+          pages = 1;
+        } else {
+          pages = parseInt(nbVulnerabilities / 20, 10) + 1;
+        }
+
+        var urls = [];
+        var listFunction = [];
+        for (var i = 0; i < pages; i++) {
+          var url = 'https://nvd.nist.gov/vuln/search/results?adv_search=true&cves=on&cpe_version=' + cpe + '&startIndex=' + i * 20;
+          urls.push(url);
+        }
+
+        // preparer call
+        urls.forEach(function (url, it) {
+          listFunction.push(getURL(url));
+        });
+
+        // https://nvd.nist.gov/products/cpe/search/results?keyword=XXX&status=FINAL&orderBy=CPEURI&namingFormat=2.2
+
+        // call all requests
+        await Promise.all(listFunction).then(function (data) {
+          var results = [];
+          // results list
+          for (var i = 0; i < data.length; i++) {
+            results = results.concat(data[i]);
           }
-
-          var urls = [];
-          var listFunction = [];
-          for (var i = 0; i < pages; i++) {
-            var url = 'https://nvd.nist.gov/vuln/search/results?adv_search=true&cves=on&cpe_version=' + cpe + '&startIndex=' + i * 20;
-            urls.push(url);
-          }
-
-          // preparer call
-          urls.forEach(function (url, it) {
-            listFunction.push(getURL(url));
-          });
-
-          // https://nvd.nist.gov/products/cpe/search/results?keyword=XXX&status=FINAL&orderBy=CPEURI&namingFormat=2.2
-
-          // call all requests
-          await Promise.all(listFunction).then(function (data) {
-            var results = [];
-            // results list
-            for (var i = 0; i < data.length; i++) {
-              results = results.concat(data[i]);
-            }
-            if (results.length == 0) {
-              return res.json({
-                ref: true,
-                vulnerability: {
-                  nombre: 0,
-                  niveau: 1
-                },
-                cve: {
-                  list: [],
-                  niveau: 1,
-                  maxScore: 0
-                }
-              });
-            }
-            var scoreList = results.map(function (val, index, array) {
-              return parseFloat(val.split('#')[1].replace(',', '.'));
-            });
-            var maxScore = Math.max(...scoreList);
-            //====================================
-            // reponse
-            var tmp = {
-              ref: true,
+          if (results.length == 0) {
+            return res.json({
+              ref: checkref,
               vulnerability: {
                 nombre: 0,
-                niveau: 0
+                niveau: 1
               },
               cve: {
                 list: [],
-                niveau: 0,
-                maxScore: maxScore
+                niveau: 1,
+                maxScore: 0
               }
-            };
-
-            tmp['vulnerability'].nombre = nbVulnerabilities;
-
-            if (nbVulnerabilities > 40) {
-              tmp['vulnerability'].niveau = 5;
-            } else if (nbVulnerabilities < 40 && nbVulnerabilities >= 20) {
-              tmp['vulnerability'].niveau = 4;
-            } else if (nbVulnerabilities < 20 && nbVulnerabilities >= 10) {
-              tmp['vulnerability'].niveau = 3;
-            } else if (nbVulnerabilities < 10 && nbVulnerabilities >= 5) {
-              tmp['vulnerability'].niveau = 2;
-            } else {
-              tmp['vulnerability'].niveau = 1;
-            }
-            tmp.cve.list = results;
-
-            if (maxScore == 0) {
-              tmp.cve.niveau = 1;
-            } else if (0.1 < maxScore && maxScore <= 3.9) {
-              tmp.cve.niveau = 2;
-            } else if (4.0 < maxScore && maxScore <= 6.9) {
-              tmp.cve.niveau = 3;
-            } else if (7.0 < maxScore && maxScore <= 8.9) {
-              tmp.cve.niveau = 4;
-            } else if (9.0 < maxScore && maxScore <= 10) {
-              tmp.cve.niveau = 5;
-            }
-
-            res.json(tmp);
+            });
+          }
+          var scoreList = results.map(function (val, index, array) {
+            return parseFloat(val.split('#')[1].replace(',', '.'));
           });
-        } else {
-          return res.json({
-            ref: true,
+          var maxScore = Math.max(...scoreList);
+          //====================================
+          // reponse
+          var tmp = {
+            ref: checkref,
             vulnerability: {
               nombre: 0,
-              niveau: 1
+              niveau: 0
             },
             cve: {
               list: [],
-              niveau: 1,
-              maxScore: 0
+              niveau: 0,
+              maxScore: maxScore
             }
-          });
-        }
+          };
+
+          tmp['vulnerability'].nombre = nbVulnerabilities;
+
+          if (nbVulnerabilities > 40) {
+            tmp['vulnerability'].niveau = 5;
+          } else if (nbVulnerabilities < 40 && nbVulnerabilities >= 20) {
+            tmp['vulnerability'].niveau = 4;
+          } else if (nbVulnerabilities < 20 && nbVulnerabilities >= 10) {
+            tmp['vulnerability'].niveau = 3;
+          } else if (nbVulnerabilities < 10 && nbVulnerabilities >= 5) {
+            tmp['vulnerability'].niveau = 2;
+          } else {
+            tmp['vulnerability'].niveau = 1;
+          }
+          tmp.cve.list = results;
+
+          if (maxScore == 0) {
+            tmp.cve.niveau = 1;
+          } else if (0.1 < maxScore && maxScore <= 3.9) {
+            tmp.cve.niveau = 2;
+          } else if (4.0 < maxScore && maxScore <= 6.9) {
+            tmp.cve.niveau = 3;
+          } else if (7.0 < maxScore && maxScore <= 8.9) {
+            tmp.cve.niveau = 4;
+          } else if (9.0 < maxScore && maxScore <= 10) {
+            tmp.cve.niveau = 5;
+          }
+
+          res.json(tmp);
+        });
+      } else {
+        return res.json({
+          ref: checkref,
+          vulnerability: {
+            nombre: 0,
+            niveau: 1
+          },
+          cve: {
+            list: [],
+            niveau: 1,
+            maxScore: 0
+          }
+        });
       }
-    });
-  } else {
-    return res.json({
-      ref: false,
-      vulnerability: {
-        nombre: 0,
-        niveau: 1
-      },
-      cve: {
-        list: [],
-        niveau: 1,
-        maxScore: 0
-      }
-    });
-  }
+    }
+  });
 });
 
 /**
