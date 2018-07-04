@@ -10,8 +10,8 @@ $(document).ready(function () {
     $('.btn').on('click', function () {
         var $btn = $(this).button('loading');
         var cpe = $("#cpe").val();
+        clear();
         $.get("/search?cpe=" + cpe, function (data) {
-            clear();
             if (data.ref == true) {
                 $('#ref').html('Rérérencé');
             } else {
@@ -33,9 +33,9 @@ $(document).ready(function () {
         });
     });
 
-    $('#cpe').on('blur', function () {
-        clear();
-    });
+    // $('#cpe').on('change', function () {
+    //     clear();
+    // });
 });
 
 function clear() {
